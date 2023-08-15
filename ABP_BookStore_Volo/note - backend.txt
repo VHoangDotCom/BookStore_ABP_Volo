@@ -1,0 +1,26 @@
+ "ConnectionStrings": {
+    "DefaultConnection": "Server=DESKTOP-5VHTUGC;Database=SignalRSample;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
+  }, 
+
+Acc: admin - 1q2w3E*
+Client ID: BookStore_Swagger
+
+FE:
+Create new component in FE: ng generate module book --module app --routing --route books
+Command that generates client proxies for your HTTP to make your HTTP APIs easy to consume by the client side. Before running the generate-proxy command, your host must be up and running.: abp generate-proxy -t ng
+
+BE:
+Context DB:
+builder.Entity<Author>(b =>
+{
+    b.ToTable(BookStoreConsts.DbTablePrefix + "Authors",
+        BookStoreConsts.DbSchema);
+    
+    b.ConfigureByConvention();
+    
+    b.Property(x => x.Name)
+        .IsRequired()
+        .HasMaxLength(AuthorConsts.MaxNameLength);
+
+    b.HasIndex(x => x.Name);
+});
