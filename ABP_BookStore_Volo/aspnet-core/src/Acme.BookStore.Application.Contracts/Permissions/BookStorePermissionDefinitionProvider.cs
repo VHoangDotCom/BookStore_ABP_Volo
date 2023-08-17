@@ -20,6 +20,11 @@ public class BookStorePermissionDefinitionProvider : PermissionDefinitionProvide
         authorsPermission.AddChild(BookStorePermissions.Authors.Edit, L("Permission:Authors.Edit"));
         authorsPermission.AddChild(BookStorePermissions.Authors.Delete, L("Permission:Authors.Delete"));
 
+        var userInfosPermission = bookStoreGroup.AddPermission(BookStorePermissions.UserInfos.Default, L("Permission:UserInfos"));
+        userInfosPermission.AddChild(BookStorePermissions.UserInfos.Create, L("Permission:UserInfos.Create"));
+        userInfosPermission.AddChild(BookStorePermissions.UserInfos.Edit, L("Permission:UserInfos.Edit"));
+        userInfosPermission.AddChild(BookStorePermissions.UserInfos.Delete, L("Permission:UserInfos.Delete"));
+
     }
 
 

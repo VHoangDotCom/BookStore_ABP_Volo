@@ -1,5 +1,6 @@
 ﻿using Acme.BookStore.Authors;
 using Acme.BookStore.Books;
+using Acme.BookStore.UserInfos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,20 +18,26 @@ namespace Acme.BookStore
         private readonly IRepository<Book, Guid> _bookRepository;
         private readonly IAuthorRepository _authorRepository;
         private readonly AuthorManager _authorManager;
+        private readonly IUserInfoRepository _userInfoRepository;
+        private readonly UserInfoManager _userInfoManager;
 
         public BookStoreDataSeederContributor(
             IRepository<Book, Guid> bookRepository,
             IAuthorRepository authorRepository,
-            AuthorManager authorManager)
+            AuthorManager authorManager,
+            UserInfoManager userInfoManager,
+            IUserInfoRepository userInfoRepository)
         {
             _bookRepository = bookRepository;
             _authorRepository = authorRepository;
             _authorManager = authorManager;
+            _userInfoManager = userInfoManager;
+            _userInfoRepository = userInfoRepository;
         }
 
         public async Task SeedAsync(DataSeedContext context)
         {
-            if (await _bookRepository.GetCountAsync() > 0)
+            if (await _bookRepository.GetCountAsync() > 0 || await _userInfoRepository.GetCountAsync() > 0)
             {
                 return;
             }
@@ -74,6 +81,31 @@ namespace Acme.BookStore
                 },
                 autoSave: true
             );
+
+            await _userInfoRepository.InsertAsync(
+            await _userInfoManager.CreateAsync(
+                "Viet",
+                "Hoang",
+                "https://res.cloudinary.com/dduv8pom4/image/upload/v1692182729/test_level_1/test_level_2/thresh.jpg",
+                new DateTime(1952, 03, 11),
+                JobType.Developer,
+                Guid.TryParse("18FE9275-8A5B-8D2A-B612-3A0D018AD38C", out var parsedGuid) ? parsedGuid : Guid.Empty,
+                "Hai Duong"
+                )
+            );
+
+            await _userInfoRepository.InsertAsync(
+            await _userInfoManager.CreateAsync(
+                "Lam",
+                "Anh",
+                "https://res.cloudinary.com/dduv8pom4/image/upload/v1692167636/yep6vqkyudbsrg1awzv9.jpg",
+                new DateTime(1952, 03, 11),
+                JobType.Teacher,
+                Guid.TryParse("8BB34EBA-65AC-62C1-8F83-3A0D10F93F9F", out var parsedTesterGuid) ? parsedTesterGuid : Guid.Empty,
+                "Hai Duong"
+                )
+            );
+
         }
     }
 
