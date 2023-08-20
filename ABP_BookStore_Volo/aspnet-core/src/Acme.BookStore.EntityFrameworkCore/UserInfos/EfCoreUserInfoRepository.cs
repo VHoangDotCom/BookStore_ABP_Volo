@@ -7,6 +7,7 @@ using Acme.BookStore.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.Domain.Repositories.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
+using Volo.Abp.Identity;
 
 namespace Acme.BookStore.UserInfos
 {
@@ -30,21 +31,30 @@ namespace Acme.BookStore.UserInfos
         public async Task<UserInfo> FindByNameAsync(string fullname)
         {
             var dbSet = await GetDbSetAsync();
-            return await dbSet.FirstOrDefaultAsync(x => (x.FirstName + x.LastName).ToLower() == fullname);
+            return await dbSet.FirstOrDefaultAsync(x => (x.FirstName + " " + x.LastName).ToLower() == fullname);
+        }
+
+        public async Task<UserInfo> FindUserHasInfoAlready(Guid userID)
+        {
+            var dbSet = await GetDbSetAsync();
+            return await dbSet.FirstOrDefaultAsync(x => x.UserId == userID);
         }
 
         public async Task<List<UserInfo>> GetListAsync(
             int skipCount, 
             int maxResultCount, 
             string sorting, 
+            int? job,
             string filter = null)
         {
             var dbSet = await GetDbSetAsync();
+            int? jobInt = (int?)job;
             return await dbSet
                 .WhereIf(
                     !filter.IsNullOrWhiteSpace(),
                     userInfo => userInfo.FirstName.Contains(filter)
                     )
+                .WhereIf(job.HasValue, x => (int)x.Job == job.Value)
                 .OrderBy(sorting)
                 .Skip(skipCount)
                 .Take(maxResultCount)

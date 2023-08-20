@@ -5,7 +5,7 @@ using Volo.Abp.Application.Dtos;
 
 namespace Acme.BookStore.UserInfos
 {
-    public class UserInfoDto : EntityDto<Guid>
+    public class UserInfoDto : AuditedEntityDto<Guid>
     {
         public string LastName { get; set; }
         public string FirstName { get; set; }
@@ -15,5 +15,6 @@ namespace Acme.BookStore.UserInfos
         public string Address { get; set; }
         public Guid UserId { get; set; }
         public string UserName { get; set; }
+        public string EmailAddress { get; set; }
     }
 }

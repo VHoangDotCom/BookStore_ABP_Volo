@@ -5,9 +5,9 @@ using Volo.Abp.Application.Dtos;
 
 namespace Acme.BookStore.UserInfos
 {
-    public class GetUserInfoListDto : PagedAndSortedResultRequestDto
+    public class UserLookupDto : EntityDto<Guid>
     {
-        public string? Filter { get; set; }
-        public int? JobType { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
     }
 }

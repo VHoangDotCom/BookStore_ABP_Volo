@@ -35,6 +35,13 @@ function configureRoutes(routes: RoutesService) {
         parentName: '::Menu:BookStore',
         layout: eLayoutType.application,
         requiredPolicy: 'BookStore.Authors',
+      },
+      {
+        path: '/userinfos',
+        name: '::Menu:UserInfos',
+        iconClass: 'fas fa-user',
+        layout: eLayoutType.application,
+        requiredPolicy: 'BookStore.UserInfos',
       }
 
     ]);

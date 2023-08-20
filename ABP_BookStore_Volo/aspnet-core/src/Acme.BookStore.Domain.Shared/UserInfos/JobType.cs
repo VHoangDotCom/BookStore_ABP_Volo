@@ -1,4 +1,6 @@
-﻿using System.Runtime.Serialization;
+﻿using JetBrains.Annotations;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 
 namespace Acme.BookStore.UserInfos
 {

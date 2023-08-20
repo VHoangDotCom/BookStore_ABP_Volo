@@ -5,7 +5,8 @@ using System.Text;
 
 namespace Acme.BookStore.UserInfos
 {
-    public class CreateOrUpdateUserInfoDto
+    public class CreateUserInfoDto
+
     {
         [Required]
         [StringLength(UserInfoConsts.MaxNameLength)]
@@ -24,6 +25,7 @@ namespace Acme.BookStore.UserInfos
         public string Address { get; set; }
 
         public Guid UserId { get; set; }
+        public string FullName { get { return $"{FirstName} {LastName}"; } }
 
     }
 }

@@ -12,10 +12,12 @@ namespace Acme.BookStore.UserInfos
     {
         Task<UserInfoDto> GetAsync(Guid id);
         Task<PagedResultDto<UserInfoDto>> GetListAsync(GetUserInfoListDto input);
-        Task<UserInfoDto> CreateAsync(CreateOrUpdateUserInfoDto input);
+        Task<CreateUserInfoDto> CreateAsync(CreateUserInfoDto input);
 
-        Task UpdateAsync(Guid id, CreateOrUpdateUserInfoDto input);
+        Task UpdateAsync(Guid id, UpdateUserInfoDto input);
 
         Task DeleteAsync(Guid id);
+
+        Task<ListResultDto<UserLookupDto>> GetUserLookupAsync();
     }
 }

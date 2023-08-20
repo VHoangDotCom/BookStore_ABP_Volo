@@ -1,0 +1,161 @@
+<div class="card">
+
+  <div class="card-header">
+    <div class="row">
+      <div class="col col-md-6">
+        <h5 class="card-title">
+          {{ '::Menu:UserInfos' | abpLocalization }}
+        </h5>
+      </div>
+
+      <div class="text-end col col-md-6">
+        <div class="text-lg-end pt-2">
+          <button *abpPermission="'BookStore.UserInfos.Create'" id="create" class="btn btn-primary" type="button"
+            (click)="createUserInfo()">
+            <i class="fa fa-plus me-1"></i>
+            <span>{{ '::NewUserInfo' | abpLocalization }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="col col-md-12">
+        <div class="row">
+
+          <div class="col-md-6 pt-2">
+            <input class="form-control" id="exampleDataList" ng-model="searchText" placeholder="Type to search..." />
+          </div>
+
+          <div class="col-md-4 pt-2">
+            <select class="form-select" aria-label="Default select example">
+              <option selected>Open this select menu</option>
+              <option value="1">One</option>
+              <option value="2">Two</option>
+              <option value="3">Three</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <ngx-datatable [rows]="userInfo.items" [count]="userInfo.totalCount" [list]="list" default>
+
+      <ngx-datatable-column [name]="'::Actions' | abpLocalization" [maxWidth]="150" [sortable]="false">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <div ngbDropdown container="body" class="d-inline-block">
+            <button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+              ngbDropdownToggle>
+              <i class="fa fa-cog me-1"></i>{{ '::Actions' | abpLocalization }}
+            </button>
+            <div ngbDropdownMenu>
+              <button *abpPermission="'BookStore.UserInfos.Edit'" ngbDropdownItem (click)="editUserInfo(row.id)">
+                {{ '::Edit' | abpLocalization }}
+              </button>
+              <button *abpPermission="'BookStore.UserInfos.Delete'" ngbDropdownItem (click)="delete(row.id)">
+                {{ '::Delete' | abpLocalization }}
+              </button>
+            </div>
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::UserName' | abpLocalization" prop="userName"></ngx-datatable-column>
+
+      <ngx-datatable-column [name]="'::EmailAddress' | abpLocalization" prop="emailAddress"></ngx-datatable-column>
+      <ngx-datatable-column [name]="'::Avatar' | abpLocalization" prop="avatarPath">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <img [src]="row.avatarPath" alt="Avatar" style="max-width: 100px; max-height: 100px;">
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column [name]="'::JobType' | abpLocalization" prop="job">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ '::Enum:JobType.' + row.job | abpLocalization }}
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column [name]="'::DOB' | abpLocalization" prop="dob">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.dob | date }}
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</div>
+
+<abp-modal [(visible)]="isModalOpen">
+
+  <ng-template #abpHeader>
+    <h3>{{ (selectedUserInfo.id ? '::Edit' : '::NewUserInfo' ) | abpLocalization }}</h3>
+  </ng-template>
+
+  <ng-template #abpBody>
+    <form [formGroup]="form" (ngSubmit)="save()">
+
+      <div class="form-group">
+        <label for="user-id">User</label><span> * </span>
+        <select class="form-control" id="user-id" formControlName="userId">
+          <option [ngValue]="null">Select User</option>
+          <option [ngValue]="user.id" *ngFor="let user of users$ | async">
+            {{ user.name }} - {{user.email}}
+          </option>
+        </select>
+      </div>
+
+      <div class="mt-2">
+        <label for="first-name">First Name</label><span> * </span>
+        <input type="text" id="first-name" class="form-control" formControlName="firstName" autofocus />
+      </div>
+
+      <div class="mt-2">
+        <label for="last-name">Last Name</label><span> * </span>
+        <input type="text" id="last-name" class="form-control" formControlName="lastName" autofocus />
+      </div>
+
+      <div class="mt-2">
+        <label for="avatar">Avatar</label><span> * </span>
+        <input type="text" id="avatar" class="form-control" formControlName="avatarPath" autofocus />
+      </div>
+
+      <div class="mt-2">
+        <label for="avatar">Avatar</label><span> * </span>
+        <input class="form-control" type="file" id="formFile" />
+      </div>
+
+      <div class="mt-2">
+        <label for="job-type">Job Type</label><span> * </span>
+        <select class="form-control" id="job-type" formControlName="job">
+          <option [ngValue]="null">Select a job type</option>
+          <option [ngValue]="job.value" *ngFor="let job of jobTypes"> {{ '::Enum:JobType.' + job.value | abpLocalization
+            }}</option>
+        </select>
+      </div>
+
+      <div class="mt-2">
+        <label>Date of Birth</label><span> * </span>
+        <input #datepicker="ngbDatepicker" class="form-control" name="datepicker" formControlName="dob" ngbDatepicker
+          (click)="datepicker.toggle()" />
+      </div>
+
+      <div class="mt-2">
+        <label for="address">Address</label><span> * </span>
+        <textarea id="address" class="form-control" formControlName="address" rows="4" autofocus></textarea>
+      </div>
+
+    </form>
+  </ng-template>
+
+
+  <ng-template #abpFooter>
+    <button type="button" class="btn btn-secondary" abpClose>
+      {{ '::Close' | abpLocalization }}
+    </button>
+
+    <!--added save button-->
+    <button class="btn btn-primary" (click)="save()" [disabled]="form.invalid">
+      <i class="fa fa-check mr-1"></i>
+      {{ '::Save' | abpLocalization }}
+    </button>
+  </ng-template>
+
+</abp-modal>
