@@ -1,7 +1,14 @@
 import { ListService, PagedResultDto } from '@abp/ng.core';
 import { Component, OnInit } from '@angular/core';
 import { NgbDateNativeAdapter, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
-import { UserInfoService, UserInfoDto, jobTypeOptions, UserLookupDto } from '@proxy/user-infos';
+import {
+  UserInfoService,
+  UserInfoDto,
+  jobTypeOptions,
+  JobType,
+  UserLookupDto,
+  GetUserInfoListDto,
+} from '@proxy/user-infos';
 import { ConfirmationService, Confirmation } from '@abp/ng.theme.shared';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -14,7 +21,7 @@ import * as $ from 'jquery';
   styleUrls: ['./userinfo.component.scss'],
   providers: [ListService, { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }],
 })
-export class UserinfoComponent implements OnInit{
+export class UserinfoComponent implements OnInit {
   userInfo = { items: [], totalCount: 0 } as PagedResultDto<UserInfoDto>;
 
   isModalOpen = false;
@@ -22,22 +29,60 @@ export class UserinfoComponent implements OnInit{
   jobTypes = jobTypeOptions;
   selectedUserInfo = {} as UserInfoDto;
   users$: Observable<UserLookupDto[]>;
+  searchString = '';
+  selectedJobType: number;
 
   constructor(
     public readonly list: ListService,
     private userInfoService: UserInfoService,
     private fb: FormBuilder,
     private confirmation: ConfirmationService
-    ){
-      this.users$ = userInfoService.getUserLookup().pipe(map((r) => r.items));
+  ) {
+    this.users$ = userInfoService.getUserLookup().pipe(map(r => r.items));
+  }
+
+  ngOnInit() {
+    const userInfoStreamCreator = query => this.userInfoService.getList(query);
+
+    this.list.hookToQuery(userInfoStreamCreator).subscribe(response => {
+      this.userInfo = response;
+    });
+  }
+
+  // Replace this with the actual mapping logic based on jobTypeOptions
+  mapJobTypeValueToLabel(value: number): string {
+    switch (value) {
+      case JobType.None:
+        return 'None';
+      case JobType.Teacher:
+        return 'Teacher';
+      case JobType.Student:
+        return 'Student';
+      case JobType.Developer:
+        return 'Developer';
+      default:
+        return 'Unknown';
     }
+  }
 
-  ngOnInit(){
-      const userInfoStreamCreator = (query) => this.userInfoService.getList(query);
+  searchUserInfo() {
+    const input: GetUserInfoListDto = {
+      filter: this.searchString,
+      jobType: this.selectedJobType,
+      sorting: null,
+      skipCount: 0,
+      maxResultCount: 10,
+    };
 
-      this.list.hookToQuery(userInfoStreamCreator).subscribe((response) => {
-        this.userInfo = response;
-      })
+    const userInfoStreamCreatorWrapper = (input: GetUserInfoListDto) => {
+      return query => this.userInfoService.getList(input);
+    };
+
+    const userInfoStreamCreator = userInfoStreamCreatorWrapper(input);
+
+    this.list.hookToQuery(userInfoStreamCreator).subscribe(response => {
+      this.userInfo = response;
+    });
   }
 
   createUserInfo() {
@@ -47,7 +92,7 @@ export class UserinfoComponent implements OnInit{
   }
 
   editUserInfo(id: string) {
-    this.userInfoService.get(id).subscribe((userInfo) => {
+    this.userInfoService.get(id).subscribe(userInfo => {
       this.selectedUserInfo = userInfo;
       this.buildForm();
       this.isModalOpen = true;
@@ -57,11 +102,13 @@ export class UserinfoComponent implements OnInit{
   buildForm() {
     this.form = this.fb.group({
       lastName: [this.selectedUserInfo.lastName || '', Validators.required],
-      firstName: [this.selectedUserInfo.firstName ||'', Validators.required],
+      firstName: [this.selectedUserInfo.firstName || '', Validators.required],
       avatarPath: [this.selectedUserInfo.avatarPath || ''],
       job: [this.selectedUserInfo.job || null, Validators.required],
-      dob: [ this.selectedUserInfo.dob ? new Date(this.selectedUserInfo.dob) : null,
-        Validators.required,],
+      dob: [
+        this.selectedUserInfo.dob ? new Date(this.selectedUserInfo.dob) : null,
+        Validators.required,
+      ],
       address: [this.selectedUserInfo.address || null, Validators.required],
       userId: [this.selectedUserInfo.userId || null, Validators.required],
     });
@@ -73,13 +120,11 @@ export class UserinfoComponent implements OnInit{
     }
 
     if (this.selectedUserInfo.id) {
-      this.userInfoService
-        .update(this.selectedUserInfo.id, this.form.value)
-        .subscribe(() => {
-          this.isModalOpen = false;
-          this.form.reset();
-          this.list.get();
-        });
+      this.userInfoService.update(this.selectedUserInfo.id, this.form.value).subscribe(() => {
+        this.isModalOpen = false;
+        this.form.reset();
+        this.list.get();
+      });
     } else {
       this.userInfoService.create(this.form.value).subscribe(() => {
         this.isModalOpen = false;
@@ -90,12 +135,10 @@ export class UserinfoComponent implements OnInit{
   }
 
   delete(id: string) {
-    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure')
-        .subscribe((status) => {
-          if (status === Confirmation.Status.confirm) {
-            this.userInfoService.delete(id).subscribe(() => this.list.get());
-          }
-	    });
+    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe(status => {
+      if (status === Confirmation.Status.confirm) {
+        this.userInfoService.delete(id).subscribe(() => this.list.get());
+      }
+    });
   }
-
 }

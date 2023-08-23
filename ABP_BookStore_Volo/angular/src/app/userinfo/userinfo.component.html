@@ -22,15 +22,33 @@
         <div class="row">
 
           <div class="col-md-6 pt-2">
-            <input class="form-control" id="exampleDataList" ng-model="searchText" placeholder="Type to search..." />
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <button
+                  type="button"
+                  class="btn bg-blue"
+                  (click)="searchUserInfo()"
+                >
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="searchString"
+                name="keyword"
+                placeholder="Search"
+                (keyup.enter)="searchUserInfo()"
+              />
+            </div>
           </div>
 
           <div class="col-md-4 pt-2">
-            <select class="form-select" aria-label="Default select example">
-              <option selected>Open this select menu</option>
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
+            <select class="form-select" aria-label="Job Type" [(ngModel)]="selectedJobType" name="selectedJobType" (change)="searchUserInfo()">
+              <option value="" selected>All</option>
+              <option *ngFor="let jobType of jobTypes" [value]="jobType.value">
+                {{ mapJobTypeValueToLabel(jobType.value) }}
+              </option>
             </select>
           </div>
 
