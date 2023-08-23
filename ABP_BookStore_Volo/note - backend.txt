@@ -24,3 +24,6 @@ builder.Entity<Author>(b =>
 
     b.HasIndex(x => x.Name);
 });
+
+Tham khao sorting tai ops nay:
+https://ops.nccsoft.vn/DefaultCollection/NCC-ERP/_git/ncc-erp-project?path=%2Faspnet-core%2Fsrc%2FProjectManagement.Application%2FAPIs%2FPMReportProjects%2FPMReportProjectAppService.cs

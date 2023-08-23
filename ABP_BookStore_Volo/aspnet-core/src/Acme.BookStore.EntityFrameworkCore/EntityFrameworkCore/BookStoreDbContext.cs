@@ -1,5 +1,6 @@
 ﻿using Acme.BookStore.Authors;
 using Acme.BookStore.Books;
+using Acme.BookStore.UserInfos;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -51,6 +52,7 @@ public class BookStoreDbContext :
     public DbSet<IdentityUserDelegation> UserDelegations { get; set; }
     public DbSet<Book> Books { get; set; }
     public DbSet<Author> Authors { get; set; }
+    public DbSet<UserInfo> UserInfos { get; set; }
 
     // Tenant Management
     public DbSet<Tenant> Tenants { get; set; }
@@ -105,6 +107,18 @@ public class BookStoreDbContext :
 
             b.HasIndex(x => x.Name);
         });
+
+        builder.Entity<UserInfo>(b =>
+        {
+            b.ToTable(BookStoreConsts.DbTablePrefix + "UserInfos", BookStoreConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.FirstName).IsRequired().HasMaxLength(UserInfoConsts.MaxNameLength);
+            b.Property(x => x.LastName).IsRequired().HasMaxLength(UserInfoConsts.MaxNameLength);
+            b.Property(x => x.Job).HasConversion<string>();
+
+            b.HasOne<IdentityUser>().WithMany().HasForeignKey(x => x.UserId).IsRequired();
+        });
+
 
     }
 }
