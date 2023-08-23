@@ -58,9 +58,9 @@ namespace Acme.BookStore.UserInfos
             var totalCount = input.Filter == null
               ? await _userInfoRepository.CountAsync()
               : await _userInfoRepository.CountAsync(
-                  user => user.FirstName.Contains(input.Filter) ||
+                  user => (user.FirstName.Contains(input.Filter) ||
                           user.LastName.Contains(input.Filter) ||
-                          user.Address.Contains(input.Filter));
+                          user.Address.Contains(input.Filter)));
 
             var userInfoDtos = new List<UserInfoDto>();
 

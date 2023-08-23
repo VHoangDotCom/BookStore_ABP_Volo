@@ -13,7 +13,6 @@ import { ConfirmationService, Confirmation } from '@abp/ng.theme.shared';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import * as $ from 'jquery';
 
 @Component({
   selector: 'app-userinfo',

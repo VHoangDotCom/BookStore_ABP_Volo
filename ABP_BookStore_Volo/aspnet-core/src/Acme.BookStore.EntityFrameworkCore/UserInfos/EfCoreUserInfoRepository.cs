@@ -52,7 +52,9 @@ namespace Acme.BookStore.UserInfos
             return await dbSet
                 .WhereIf(
                     !filter.IsNullOrWhiteSpace(),
-                    userInfo => userInfo.FirstName.Contains(filter)
+                    userInfo => userInfo.FirstName.Contains(filter) || 
+                    userInfo.LastName.Contains(filter) || 
+                    userInfo.Address.Contains(filter)
                     )
                 .WhereIf(job.HasValue, x => (int)x.Job == job.Value)
                 .OrderBy(sorting)
