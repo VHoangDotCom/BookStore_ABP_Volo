@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CloudinaryTest.Migrations
 {
     [DbContext(typeof(CloudDBContext))]
-    [Migration("20230828044318_Remove FullAudit for CloudFolder")]
-    partial class RemoveFullAuditforCloudFolder
+    [Migration("20230829091727_first_init")]
+    partial class first_init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,8 +37,8 @@ namespace CloudinaryTest.Migrations
                     b.Property<int>("Format")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("ImagePath")
                         .IsRequired()
@@ -68,9 +68,6 @@ namespace CloudinaryTest.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("CloudFolderId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -96,8 +93,6 @@ namespace CloudinaryTest.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CloudFolderId");
 
                     b.ToTable("CloudFolders");
                 });
@@ -132,16 +127,7 @@ namespace CloudinaryTest.Migrations
 
             modelBuilder.Entity("CloudinaryTest.Entities.CloudFolder", b =>
                 {
-                    b.HasOne("CloudinaryTest.Entities.CloudFolder", null)
-                        .WithMany("CloudFolders")
-                        .HasForeignKey("CloudFolderId");
-                });
-
-            modelBuilder.Entity("CloudinaryTest.Entities.CloudFolder", b =>
-                {
                     b.Navigation("CloudFiles");
-
-                    b.Navigation("CloudFolders");
                 });
 #pragma warning restore 612, 618
         }

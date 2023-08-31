@@ -347,8 +347,58 @@ namespace CloudinaryTest.Controllers
 
             _cloudFolderRepository.UpdateRange(listChilds);
         }
-     
-        public void ValidToDeleteListFolder(long id, List<long> listFolderIds = default)
+
+        [HttpDelete("/api/DeleteTreeCloudFolder")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteTreeCloudFolder(long id)
+        {
+            var folder = _cloudFolderRepository.GetFolder(id);
+            if(folder == default)
+                throw new UserFriendlyException($"Can not found Folder with Id = {id}");
+
+            if (!folder.IsLeaf)
+            {
+                var listFCs = _cloudFolderRepository.GetAll().ToList();
+                var listIds = _commonManager.GetAllNodeAndLeafIdById(id, listFCs).Distinct().ToList();
+                foreach(var Id in listIds)
+                {
+                    ValidToDeleteSubFolder(Id);
+                    _cloudFolderRepository.DeleteFolder(Id);
+                }
+            }
+            else
+            {
+                ValidToDeleteSubFolder(id);
+                _cloudFolderRepository.DeleteFolder(id);
+            }
+
+            if(folder.ParentId.HasValue)
+            {
+                var parentID = folder.ParentId.Value;
+                var parent = _cloudFolderRepository.GetFolder(parentID);
+                var countRemainChild = _cloudFolderRepository.GetAll().Any(child => child.ParentId == parentID);
+                if (!countRemainChild)
+                {
+                    parent.IsLeaf = true;
+                    _cloudFolderRepository.UpdateFolder(parent);
+                }
+            }
+
+            return NoContent();
+        }
+
+        private void ValidToDeleteSubFolder(long id)
+        {
+            var folder = _cloudFolderRepository.GetAll()
+                .Where(x => x.CloudFiles != null && x.CloudFiles.Count > 0 && x.Id == id)
+                .FirstOrDefault();
+            if(folder != default)
+                throw new UserFriendlyException($"Can not delete folder because it has assets");
+        }
+
+        private void ValidToDeleteListFolder(long id, List<long> listFolderIds = default)
         {
            //Execute case that its leaf has list Cloud File
         }

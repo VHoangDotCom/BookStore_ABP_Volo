@@ -1,15 +1,8 @@
-﻿namespace CloudinaryTest.Entities
+﻿using CloudinaryTest.Entities;
+
+namespace CloudinaryTest.Dto
 {
-    public enum FormatType
-    {
-        JPG = 0,
-        JPGE = 1,
-        GIF = 2,
-        PNG = 3,
-        JPE = 4,
-        TIF = 5
-    }
-    public class CloudFile
+    public class CloudFileDto
     {
         public long Id { get; set; }
         public string PublicId { get; set; }

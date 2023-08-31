@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace CloudinaryTest.Migrations
 {
     /// <inheritdoc />
-    public partial class First_Init : Migration
+    public partial class first_init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +14,7 @@ namespace CloudinaryTest.Migrations
                 name: "CloudFolders",
                 columns: table => new
                 {
-                    ID = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -23,17 +22,11 @@ namespace CloudinaryTest.Migrations
                     IsLeaf = table.Column<bool>(type: "bit", nullable: false),
                     ParentId = table.Column<long>(type: "bigint", nullable: true),
                     Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CombineName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CloudFolderID = table.Column<long>(type: "bigint", nullable: true)
+                    CombineName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CloudFolders", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_CloudFolders_CloudFolders_CloudFolderID",
-                        column: x => x.CloudFolderID,
-                        principalTable: "CloudFolders",
-                        principalColumn: "ID");
+                    table.PrimaryKey("PK_CloudFolders", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -54,7 +47,7 @@ namespace CloudinaryTest.Migrations
                 columns: table => new
                 {
                     FolderId = table.Column<long>(type: "bigint", nullable: false),
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false),
                     PublicId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Format = table.Column<int>(type: "int", nullable: false),
                     ImageURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -69,14 +62,9 @@ namespace CloudinaryTest.Migrations
                         name: "FK_CloudFiles_CloudFolders_FolderId",
                         column: x => x.FolderId,
                         principalTable: "CloudFolders",
-                        principalColumn: "ID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CloudFolders_CloudFolderID",
-                table: "CloudFolders",
-                column: "CloudFolderID");
         }
 
         /// <inheritdoc />
