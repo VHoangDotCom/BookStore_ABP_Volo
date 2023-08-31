@@ -46,18 +46,19 @@ namespace CloudinaryTest.Migrations
                 name: "CloudFiles",
                 columns: table => new
                 {
-                    FolderId = table.Column<long>(type: "bigint", nullable: false),
-                    Id = table.Column<long>(type: "bigint", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     PublicId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Format = table.Column<int>(type: "int", nullable: false),
                     ImageURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsOverride = table.Column<bool>(type: "bit", nullable: false),
-                    FolderPath = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    FolderPath = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FolderId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CloudFiles", x => x.FolderId);
+                    table.PrimaryKey("PK_CloudFiles", x => x.Id);
                     table.ForeignKey(
                         name: "FK_CloudFiles_CloudFolders_FolderId",
                         column: x => x.FolderId,
@@ -65,6 +66,11 @@ namespace CloudinaryTest.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CloudFiles_FolderId",
+                table: "CloudFiles",
+                column: "FolderId");
         }
 
         /// <inheritdoc />

@@ -24,6 +24,12 @@ namespace CloudinaryTest.Migrations
 
             modelBuilder.Entity("CloudinaryTest.Entities.CloudFile", b =>
                 {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
                     b.Property<long>("FolderId")
                         .HasColumnType("bigint");
 
@@ -33,9 +39,6 @@ namespace CloudinaryTest.Migrations
 
                     b.Property<int>("Format")
                         .HasColumnType("int");
-
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("ImagePath")
                         .IsRequired()
@@ -52,7 +55,9 @@ namespace CloudinaryTest.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("FolderId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("FolderId");
 
                     b.ToTable("CloudFiles");
                 });

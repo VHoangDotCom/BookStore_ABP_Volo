@@ -17,7 +17,7 @@ namespace CloudinaryTest.DAL
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CloudFile>()
-                 .HasKey(e => e.FolderId);
+                 .HasKey(e => e.Id);
             modelBuilder.Entity<CloudFile>()
                 .HasOne(p => p.CloudFolder)
                 .WithMany(pc => pc.CloudFiles)

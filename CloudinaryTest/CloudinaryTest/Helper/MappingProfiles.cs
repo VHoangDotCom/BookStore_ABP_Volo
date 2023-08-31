@@ -15,8 +15,12 @@ namespace CloudinaryTest.Helper
             CreateMap<CloudFolder, UpdateCloudFolderDto>();
             CreateMap<UpdateCloudFolderDto, CloudFolder>();
 
-            CreateMap<CloudFile, CloudFileDto>();
-            CreateMap<CloudFileDto, CloudFile>();
+            CreateMap<CloudFile, GetCloudFileDto>();
+            CreateMap<GetCloudFileDto, CloudFile>();
+            CreateMap<CreateCloudFileDto, CloudFile>();
+            CreateMap<CloudFile, CreateCloudFileDto > ();
+            CreateMap<CloudFile, UpdateCloudFileDto>();
+            CreateMap<UpdateCloudFileDto, CloudFile>();
         }
     }
 }

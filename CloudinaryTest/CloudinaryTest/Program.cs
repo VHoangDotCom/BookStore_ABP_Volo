@@ -1,4 +1,3 @@
-
 using CloudinaryTest.Common.Manager;
 using CloudinaryTest.DAL;
 using CloudinaryTest.Interfaces;
