@@ -266,6 +266,265 @@ namespace CloudinaryTest.Controllers
 
 
         #region Cloud Folder
+
+        [HttpGet("CheckExistedFolder")]
+        public async Task<IActionResult> CheckFolderExistence(string folder)
+        {
+            Account account = new Account(CLOUD_NAME, API_KEY, API_SECRET);
+            Cloudinary cloudinary = new Cloudinary(account);
+
+            SearchResult result = cloudinary.Search()
+                  .Expression($"folder={folder}")
+                  .Execute();
+
+            if (result.Resources != null && result.Resources.Count > 0)
+            {
+                return Ok("Folder exists.");
+            }
+            else
+            {
+                return BadRequest("Folder does not exist.");
+            }
+        }
+
+        [HttpGet("CheckAndListExistedAssetsInFolder")]
+        public async Task<IActionResult> CheckAndListExistedAssetsInFolder(string folder)
+        {
+            Account account = new Account(CLOUD_NAME, API_KEY, API_SECRET);
+            Cloudinary cloudinary = new Cloudinary(account);
+
+            SearchResult result = cloudinary.Search()
+                .Expression($"folder:{folder}")
+                .Execute();
+
+            var subFoldersResult = cloudinary.SubFolders(folder);
+            List<string> folderNames = subFoldersResult.Folders.Select(subFolder => subFolder.Name).ToList();
+
+            if (result.Resources != null)
+            {
+                bool folderContainsItems = result.Resources.Any(resource =>
+                    !string.IsNullOrWhiteSpace(resource.PublicId) || !string.IsNullOrWhiteSpace(resource.Folder));
+
+                if (folderContainsItems)
+                {
+                    List<string> assetUrls = result.Resources
+                        .Where(resource => !string.IsNullOrWhiteSpace(resource.PublicId))
+                        .Select(resource => $"{resource.PublicId} - {resource.Url}")
+                        .ToList();
+
+                    if (assetUrls.Count > 0)
+                    {
+                        string assetUrlsString = string.Join("\n", assetUrls);
+                        string folderNamesString = string.Join("\n", folderNames);
+
+                        return Ok($"List assets:\n{assetUrlsString}\n\nSubFolder Names:\n{folderNamesString}");
+                    }
+                    else
+                    {
+                        return Ok("Folder does not contain any assets.");
+                    }
+                }
+                else
+                {
+                    return Ok("Folder exists but is empty.");
+                }
+            }
+            else
+            {
+                return BadRequest("Folder does not exist or contains no assets.");
+            }
+        }
+
+        [HttpGet("GetAssetsInFolder")]
+        public async Task<IActionResult> GetAssetsInFolder(string folder)
+        {
+            Account account = new Account(CLOUD_NAME, API_KEY, API_SECRET);
+            Cloudinary cloudinary = new Cloudinary(account);
+
+            SearchResult result = cloudinary.Search()
+                .Expression($"folder={folder}")
+                .Execute();
+
+            if (result.Resources != null && result.Resources.Count > 0)
+            {
+                List<string> assetUrls = result.Resources.Select(resource => resource.Url).ToList();
+                return Ok(assetUrls);
+            }
+            else
+            {
+                return BadRequest("Folder does not exist or contains no assets.");
+            }
+        }
+
+        [HttpGet("GetAllRootFolders")]
+        public async Task<IActionResult> GetAllRootFolders()
+        {
+            Account account = new Account(CLOUD_NAME, API_KEY, API_SECRET);
+            Cloudinary cloudinary = new Cloudinary(account);
+
+            // Use the RootFolders method to retrieve all root-level folders
+            var rootFoldersResult = cloudinary.RootFolders();//Get root folders
+
+            if (rootFoldersResult != null && rootFoldersResult.Folders != null)
+            {
+                // Extract folder names from the result
+                List<string> folderNames = rootFoldersResult.Folders.Select(folder => folder.Name).ToList();
+                return Ok(folderNames);
+            }
+            else
+            {
+                return BadRequest("No folders found.");
+            }
+        }
+
+        [HttpGet("GetSubFolders")]
+        public async Task<IActionResult> GetSubFolders(string folder)
+        {
+            Account account = new Account(CLOUD_NAME, API_KEY, API_SECRET);
+            Cloudinary cloudinary = new Cloudinary(account);
+
+            var subFoldersResult = cloudinary.SubFolders(folder);//Get subfolders
+
+            if (subFoldersResult != null && subFoldersResult.Folders != null)
+            {
+                // Extract folder names from the result
+                List<string> folderNames = subFoldersResult.Folders.Select(folder => folder.Name).ToList();
+                return Ok(folderNames);
+            }
+            else
+            {
+                return BadRequest("No folders found.");
+            }
+        }
+
+        [HttpPost("CreateNewRootFolder")]
+        public async Task<IActionResult> CreateNewRootFolder(string folder)
+        {
+            if (string.IsNullOrWhiteSpace(folder))
+            {
+                return BadRequest("Folder name cannot be empty.");
+            }
+
+            Account account = new Account(CLOUD_NAME, API_KEY, API_SECRET);
+            Cloudinary cloudinary = new Cloudinary(account);
+
+            // Retrieve the list of existing folders
+            var existedFolder = await cloudinary.RootFoldersAsync();
+
+            // Check if a folder with the same name already exists
+            if (existedFolder.Folders.Any(existingFolder => existingFolder.Name == folder))
+            {
+                return BadRequest($"Folder '{folder}' already exists.");
+            }
+
+            // If the folder doesn't exist, create it
+            await cloudinary.CreateFolderAsync(folder);
+            return Ok("Folder created successfully!");
+        }
+
+        [HttpPost("CreateNewSubFolder")]
+        public async Task<IActionResult> CreateNewSubFolder(int level, List<string> parentFolders, string folder)
+        {
+            if (string.IsNullOrWhiteSpace(folder))
+            {
+                return BadRequest("Folder name cannot be empty.");
+            }
+
+            if (level <= 0 || parentFolders.Count != level)
+            {
+                return BadRequest("Invalid level or parent folder list.");
+            }
+
+            Account account = new Account(CLOUD_NAME, API_KEY, API_SECRET);
+            Cloudinary cloudinary = new Cloudinary(account);
+
+            // Construct the full folder path based on level and parent folders
+            string fullFolderPath = string.Join("/", parentFolders.Take(level)) + "/" + folder;
+
+            // Retrieve the list of existing folders
+            var existedFolder = await cloudinary.RootFoldersAsync();
+
+            // Check if a folder with the same name already exists
+            if (existedFolder.Folders.Any(existingFolder => existingFolder.Path == fullFolderPath))
+            {
+                return BadRequest($"Folder '{fullFolderPath}' already exists.");
+            }
+
+            // If the folder doesn't exist, create it
+            await cloudinary.CreateFolderAsync(fullFolderPath);
+            return Ok($"Folder '{fullFolderPath}' created successfully!");
+        }
+
+        [HttpDelete("DeleteRootFolder")]
+        public async Task<IActionResult> DeleteRootFolder(string folder)
+        {
+            if (string.IsNullOrWhiteSpace(folder))
+            {
+                return BadRequest("Folder name cannot be empty.");
+            }
+
+            Account account = new Account(CLOUD_NAME, API_KEY, API_SECRET);
+            Cloudinary cloudinary = new Cloudinary(account);
+
+            // Retrieve the list of existing folders
+            var existedFolder = await cloudinary.RootFoldersAsync();
+
+            // Check if a folder with the same name already exists
+            if (existedFolder.Folders.Any(existingFolder => existingFolder.Name == folder))
+            {
+                cloudinary.DeleteFolder(folder);
+                return Ok($"Folder '{folder}' is deleted successfully!");
+            }
+            else
+            {
+                return BadRequest($"Folder '{folder}' is not existed!");
+            }
+        }
+
+        [HttpDelete("DeleteSubfolder")]
+        public async Task<IActionResult> DeleteSubfolder(string subfolder)
+        {
+            if (string.IsNullOrWhiteSpace(subfolder))
+            {
+                return BadRequest("Subfolder path cannot be empty.");
+            }
+
+            Account account = new Account(CLOUD_NAME, API_KEY, API_SECRET);
+            Cloudinary cloudinary = new Cloudinary(account);
+
+            // Construct the full path to the subfolder
+            string fullSubfolderPath = $"test_level_3/test_level_3.1/test_level_3.1.1/{subfolder}";
+
+            // Attempt to delete the subfolder
+            var result = cloudinary.DeleteFolder(fullSubfolderPath);
+
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                return Ok($"Subfolder '{subfolder}' is deleted successfully!");
+            }
+            else if (result.StatusCode == HttpStatusCode.NotFound)
+            {
+                return BadRequest($"Subfolder '{subfolder}' does not exist.");
+            }
+            else
+            {
+                return StatusCode((int)result.StatusCode, $"Failed to delete subfolder '{subfolder}'.");
+            }
+        }
+
+        [HttpPut("UpdateFolder")]
+        public async Task<IActionResult> UpdateFolder(string currentFolderName, string newFolderName)
+        {
+            //1 - Create new folder with the new name - change it combine path also
+            // In DB local, just update the name of that folder - Done
+            //2 - Move subfolders of old one to new one (update their combineName actually)
+            // Both DB local and Cloud
+            //3 - Rename publicId of each assets (both in cloud and local)
+            //4 - Delete old folder in cloud
+
+            return Ok("");
+        }
+
         #endregion
 
     }

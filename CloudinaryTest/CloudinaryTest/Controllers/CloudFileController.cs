@@ -118,9 +118,9 @@ namespace CloudinaryTest.Controllers
             if (existingFile == null)
                 return NotFound();
 
-            existingFile.PublicId = updatedFile.PublicId;
+           // existingFile.PublicId = updatedFile.PublicId;
             existingFile.Format = updatedFile.Format;
-            existingFile.ImageURL = updatedFile.ImageURL;
+            //existingFile.ImageURL = updatedFile.ImageURL;
             existingFile.ImagePath = updatedFile.ImagePath;
             existingFile.IsOverride = updatedFile.IsOverride;
 

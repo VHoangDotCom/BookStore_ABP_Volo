@@ -31,6 +31,17 @@ namespace CloudinaryTest.Repository
             return Save();
         }
 
+        public async Task<bool> DeleteFolderAsync(long id)
+        {
+            var folder = await _dbContext.CloudFolders.Where(x => x.Id == id).FirstOrDefaultAsync();
+            if (folder != null)
+            {
+                _dbContext.Remove(folder);
+            }
+            else { return false; }
+            return Save();
+        }
+
         public bool FolderExists(long id)
         {
             return _dbContext.CloudFolders.Any(p => p.Id == id);
@@ -41,9 +52,19 @@ namespace CloudinaryTest.Repository
             return _dbContext.CloudFolders.OrderBy(x => x.Name).ToList();
         }
 
+        public async Task<ICollection<CloudFolder>> GetAllAsync()
+        {
+            return await _dbContext.CloudFolders.OrderBy(x => x.Name).ToListAsync();
+        }
+
         public CloudFolder GetFolder(long id)
         {
             return _dbContext.CloudFolders.Where(x => x.Id == id).FirstOrDefault();
+        }
+
+        public async Task<CloudFolder> GetFolderAsync(long id)
+        {
+            return await _dbContext.CloudFolders.Where(x => x.Id == id).FirstOrDefaultAsync();
         }
 
         public CloudFolder GetFolderTrimToUpper(CloudFolderDto cloudFolder)
@@ -64,6 +85,22 @@ namespace CloudinaryTest.Repository
             var folderUpdate = _dbContext.CloudFolders.Where(x => x.Id == folder.Id).FirstOrDefault();
 
             if(folderUpdate != null)
+            {
+                folderUpdate.Name = folder.Name;
+                folderUpdate.Code = folder.Code;
+
+                _dbContext.Update(folderUpdate);
+                return  Save();
+            }
+
+            return false;
+        }
+
+        public async Task<bool> UpdateFolderAsync(CloudFolder folder)
+        {
+            var folderUpdate = await _dbContext.CloudFolders.Where(x => x.Id == folder.Id).FirstOrDefaultAsync();
+
+            if (folderUpdate != null)
             {
                 folderUpdate.Name = folder.Name;
                 folderUpdate.Code = folder.Code;
